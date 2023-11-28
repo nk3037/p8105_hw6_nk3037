@@ -47,5 +47,19 @@ weather_df =
 ```{r}
 # Initial linear model
 lin_model = lm(tmax ~ tmin + prcp, data = weather_df)
+
+# Bootstrap sample
+bootstrap_samples = 5000
+
+# Creating a matrix for the estimates
+bootstrap_estimates = matrix(NA, nrow = bootstrap_samples, ncol = 2)
+
+# Bootstrapping
+for (i in 1:num_samples) {
+  bootstrap_sample = data[sample(nrow(data), replace = TRUE), ]
+  bootstrap_model = lm(tmax ~ tmin + prcp, data = bootstrap_sample)
+  bootstrap_estimates[i, 1] = broom::glance(bootstrap_model)$r.squared
+  bootstrap_estimates[i, 2] = sum(broom::tidy(bootstrap_model)$estimate[-1])
+}
 ```
 
