@@ -44,3 +44,8 @@ weather_df =
   select(name, id, everything())
 ```
 
+```{r}
+# Initial linear model
+lin_model = lm(tmax ~ tmin + prcp, data = weather_df)
+```
+
