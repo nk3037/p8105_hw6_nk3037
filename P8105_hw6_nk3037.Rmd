@@ -64,7 +64,7 @@ for (i in 1:num_samples) {
 
 # Plotting the distribution
 hist(bootstrap_estimates[, 1], main = "Distribution of r^2", xlab = "r^2")
-hist(bootstrap_estimates[, 2], main = "Distribution of log(\\hat{β}_1 * \\hat{β}_2)", xlab = "log(β̂1∗β̂2)")
+hist(bootstrap_estimates[, 2], main = "Distribution of log(hat(β1) * hat(β2))", xlab = "log(β1*β2)")
 
 ```
 
