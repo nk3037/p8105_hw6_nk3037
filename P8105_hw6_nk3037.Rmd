@@ -49,17 +49,22 @@ weather_df =
 lin_model = lm(tmax ~ tmin + prcp, data = weather_df)
 
 # Bootstrap sample
-bootstrap_samples = 5000
+num_samples = 5000
 
 # Creating a matrix for the estimates
-bootstrap_estimates = matrix(NA, nrow = bootstrap_samples, ncol = 2)
+bootstrap_estimates = matrix(NA, nrow = num_samples, ncol = 2)
 
 # Bootstrapping
 for (i in 1:num_samples) {
-  bootstrap_sample = data[sample(nrow(data), replace = TRUE), ]
+  bootstrap_sample = weather_df[sample(nrow(weather_df), replace = TRUE), ]
   bootstrap_model = lm(tmax ~ tmin + prcp, data = bootstrap_sample)
   bootstrap_estimates[i, 1] = broom::glance(bootstrap_model)$r.squared
   bootstrap_estimates[i, 2] = sum(broom::tidy(bootstrap_model)$estimate[-1])
 }
+
+# Plotting the distribution
+hist(bootstrap_estimates[, 1], main = "Distribution of r^2", xlab = "r^2")
+hist(bootstrap_estimates[, 2], main = "Distribution of log(\\hat{β}_1 * \\hat{β}_2)", xlab = "log(β̂1∗β̂2)")
+
 ```
 
