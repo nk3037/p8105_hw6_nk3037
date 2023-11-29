@@ -44,6 +44,7 @@ weather_df =
   select(name, id, everything())
 ```
 
+### Bootstrapping
 ```{r}
 # Initial linear model
 lin_model = lm(tmax ~ tmin + prcp, data = weather_df)
@@ -72,3 +73,17 @@ hist(bootstrap_estimates[, 2], main = "Distribution of log(hat(β1) * hat(β2))"
 ```
 
 The distribution of log (b1*b2) is normally distributed. The mean and mode is between 1.01-1.02. Based on the Central Limit Theorem, it is expected that the distribution across 5000 samples is approximately normal. Since the product of the log of b1 and b2 is normal, we can conclude that b1 and b2 are also log-normally distributed.
+
+### Confidence interval
+```{r}
+quantiles = quantile(bootstrap_estimates, c(0.025, 0.975), na.rm = TRUE)
+
+lower_bound_r_squared = quantiles[1]
+upper_bound_r_squared = quantiles[2]
+
+lower_bound_log_beta = quantiles[3]
+upper_bound_log_beta = quantiles[4]
+
+cat("95% CI for r^2:", lower_bound_r_squared, "-", upper_bound_r_squared, "\n")
+cat("95% CI for log(β̂1∗β̂2):", lower_bound_log_beta, "-", upper_bound_log_beta, "\n")
+```
