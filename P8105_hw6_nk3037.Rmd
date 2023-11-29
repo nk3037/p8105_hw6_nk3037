@@ -78,11 +78,11 @@ The distribution of log (b1*b2) is normally distributed. The mean and mode is be
 ```{r}
 quantiles <- quantile(bootstrap_estimates, c(0.025, 0.975), na.rm = TRUE)
 
-lower_bound_r_squared <- quantiles["2.5%"]
-upper_bound_r_squared <- quantiles["97.5%"]
+lower_bound_r_squared = quantiles["2.5%"]
+upper_bound_r_squared = quantiles["97.5%"]
 
-lower_bound_log_beta <- quantiles["2.5%"]
-upper_bound_log_beta <- quantiles["97.5%"]
+lower_bound_log_beta = quantiles["2.5%"]
+upper_bound_log_beta = quantiles["97.5%"]
 
 cat("95% CI for r^2:", lower_bound_r_squared, "-", upper_bound_r_squared, "\n")
 cat("95% CI for log(β̂1∗β̂2):", lower_bound_log_beta, "-", upper_bound_log_beta, "\n")
@@ -93,5 +93,13 @@ cat("95% CI for log(β̂1∗β̂2):", lower_bound_log_beta, "-", upper_bound_log
 ```{r}
 # Loading the birth weight data
 birthweight = read_csv("./data/birthweight.csv")
-```
 
+# Data cleaning
+birthweight = janitor::clean_names(birthweight, case = "snake")%>% 
+  mutate(babysex = recode(babysex, "1" = "male", "2" = "female"))%>%
+  filter (frace != "9") %>% 
+  mutate(frace = recode(frace, "1" = "White", "2" = "Black", "3" = "Asian", "4" = "Puerto Rican", "8" = "Other")) %>% 
+  mutate(malform = recode(malform, "0" = "absent", "1" = "present")) %>%
+  mutate(mrace = recode(mrace, "1" = "White", "2" = "Black", "3" = "Asian", "4" = "Puerto Rican", "8" = "Other")) %>% 
+  na.omit(birthweight)
+```
