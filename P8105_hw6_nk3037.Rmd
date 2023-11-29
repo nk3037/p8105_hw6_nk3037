@@ -64,7 +64,11 @@ for (i in 1:num_samples) {
 
 # Plotting the distribution
 hist(bootstrap_estimates[, 1], main = "Distribution of r^2", xlab = "r^2")
-hist(bootstrap_estimates[, 2], main = "Distribution of log(hat(β1) * hat(β2))", xlab = "log(β1*β2)")
+```
+The distribution of r squared is skewed left. The most common r^2 value is between 0.92-0.925. The mean r^2 value is 0.92. Since the distribution is not normal, it may be safe to assume that a linear model is not the best approach for this data and instead a generalized linear model or non-parametric methods may be better.
 
+```{r}
+hist(bootstrap_estimates[, 2], main = "Distribution of log(hat(β1) * hat(β2))", xlab = "log(β1*β2)")
 ```
 
+The distribution of log (b1*b2) is normally distributed. The mean and mode is between 1.01-1.02. Based on the Central Limit Theorem, it is expected that the distribution across 5000 samples is approximately normal. Since the product of the log of b1 and b2 is normal, we can conclude that b1 and b2 are also log-normally distributed.
