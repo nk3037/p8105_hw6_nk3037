@@ -87,3 +87,11 @@ upper_bound_log_beta <- quantiles["97.5%"]
 cat("95% CI for r^2:", lower_bound_r_squared, "-", upper_bound_r_squared, "\n")
 cat("95% CI for log(β̂1∗β̂2):", lower_bound_log_beta, "-", upper_bound_log_beta, "\n")
 ```
+
+
+## Question 3
+```{r}
+# Loading the birth weight data
+birthweight = read_csv("./data/birthweight.csv")
+```
+
