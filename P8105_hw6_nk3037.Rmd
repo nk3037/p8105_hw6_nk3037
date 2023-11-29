@@ -96,10 +96,14 @@ birthweight = read_csv("./data/birthweight.csv")
 
 # Data cleaning
 birthweight = janitor::clean_names(birthweight, case = "snake")%>% 
-  mutate(babysex = recode(babysex, "1" = "male", "2" = "female"))%>%
-  filter (frace != "9") %>% 
-  mutate(frace = recode(frace, "1" = "White", "2" = "Black", "3" = "Asian", "4" = "Puerto Rican", "8" = "Other")) %>% 
-  mutate(malform = recode(malform, "0" = "absent", "1" = "present")) %>%
-  mutate(mrace = recode(mrace, "1" = "White", "2" = "Black", "3" = "Asian", "4" = "Puerto Rican", "8" = "Other")) %>% 
+  mutate(
+    babysex = factor(babysex),
+    frace = factor(frace, levels = c(1, 2, 3, 4, 8, 9)),
+    mrace = factor(mrace, levels = c(1, 2, 3, 4, 8)),
+    malform = factor(malform),
+    smoken = factor(smoken),
+    parity = factor(parity)
+  ) %>% 
   na.omit(birthweight)
+
 ```
