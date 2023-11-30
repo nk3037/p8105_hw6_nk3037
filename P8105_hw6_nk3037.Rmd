@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(viridis)
+library(broom)
 
 knitr::opts_chunk$set(
 	echo = TRUE,
@@ -106,4 +107,22 @@ birthweight = janitor::clean_names(birthweight, case = "snake")%>%
   ) %>% 
   na.omit(birthweight)
 
+# Regression model
+model = lm (bwt ~ fincome + mrace + frace, data = birthweight)
+summary(model)
+
+# Adding in predictions and residuals
+birthweight = cbind(birthweight, predict(model, interval = "prediction"))
+colnames(birthweight)[ncol(birthweight) - 2] = "predictions"
+colnames(birthweight)[ncol(birthweight) - 1] = "lower_bound"
+colnames(birthweight)[ncol(birthweight)] = "upper_bound"
+
+# Plot residuals against fitted values
+plot(x = predict(model), y = residuals(model),
+     xlab = "Fitted Values", ylab = "Residuals",
+     main = "Residuals vs Fitted Values",
+     col = "black", pch = 1)
+abline(h = 0, col = "red", lty = 2)
 ```
+
+The simple linear model examines the effect that family income and parents' race (mother and father race) have on birth weight.
