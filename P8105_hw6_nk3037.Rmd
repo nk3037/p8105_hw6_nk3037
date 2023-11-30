@@ -108,7 +108,7 @@ birthweight = janitor::clean_names(birthweight, case = "snake")%>%
   na.omit(birthweight)
 
 # Regression model
-model = lm (bwt ~ fincome + mrace + frace, data = birthweight)
+model = lm (bwt ~ mheight + delwt, data = birthweight)
 summary(model)
 
 # Adding in predictions and residuals
@@ -125,4 +125,4 @@ plot(x = predict(model), y = residuals(model),
 abline(h = 0, col = "red", lty = 2)
 ```
 
-The simple linear model examines the effect that family income and parents' race (mother and father race) have on birth weight.
+The simple linear model examines the effect that family income and parents' race (mother and father race) have on birth weight. Based on the fitted values vs predicted values plot, since the points are clustered symmetriclly around 0, we can conclude that the variability of the residuals varies across different levels of the fitted values. This indicates heteroscedasticity. This means the relationship between predictors and the respone variable is not linear.
