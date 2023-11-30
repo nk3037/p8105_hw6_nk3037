@@ -9,6 +9,8 @@ output: html_document
 library(tidyverse)
 library(viridis)
 library(broom)
+library(DAAG)
+library(purrr)
 
 knitr::opts_chunk$set(
 	echo = TRUE,
@@ -125,4 +127,26 @@ plot(x = predict(model), y = residuals(model),
 abline(h = 0, col = "red", lty = 2)
 ```
 
-The simple linear model examines the effect that family income and parents' race (mother and father race) have on birth weight. Based on the fitted values vs predicted values plot, since the points are clustered symmetriclly around 0, we can conclude that the variability of the residuals varies across different levels of the fitted values. This indicates heteroscedasticity. This means the relationship between predictors and the respone variable is not linear.
+The simple linear model examines the effect that family income and parents' race (mother and father race) have on birth weight. Based on the fitted values vs predicted values plot, since the points are clustered symmetrically around 0, we can conclude that the variability of the residuals varies across different levels of the fitted values. This indicates heteroscedasticity. This means the relationship between predictors and the respone variable is not linear.
+
+```{r}
+# Comparing the model to two other models
+model1 = lm(bwt ~ blength + gaweeks, data = birthweight)
+model2 = lm(bwt ~ bhead * blength * babysex, data = birthweight)
+
+models = list(model1, model2)
+
+cv_error = function(model_formula, data) {
+  model = lm(as.formula(model_formula), data = data)
+  cv_results = cv.lm(data, model, m = 5)$delta[1]  
+  coef_df = as.data.frame(tidy(model))
+  return(coef_df)
+}
+
+# Apply the function to each model
+cv_results = map_df(models, cv_error, data = birthweight)
+
+# Print the results
+print(cv_results)
+```
+
