@@ -119,9 +119,9 @@ The simple linear model examines the effect that mother's height and weight have
 
 ### Model residuals vs fitted values
 ```{r}
-birthweight |> 
-  add_predictions(model) |>
-  add_residuals(model) |>
+birthweight %>% 
+  add_predictions(model1)  %>% 
+  add_residuals(model1)  %>% 
   ggplot(aes(x = pred, y = resid)) +  geom_point() +
   geom_smooth(method = "lm") +
   labs(
@@ -129,3 +129,25 @@ birthweight |>
 ```
 
  Based on the fitted values vs predicted values plot, since the points are clustered symmetriclly around 0, we can conclude that the variability of the residuals varies across different levels of the fitted values. This indicates heteroscedasticity. This means the relationship between predictors and the response variable is not linear.
+ 
+### Comparing to the other two models
+```{r}
+model2 = lm(bwt ~ blength + gaweeks, data = birthweight)
+model3 = lm(bwt ~ bhead * blength * babysex, data = birthweight)
+
+cv_df =
+  crossv_mc(birthweight, 100)  # 100 cross validation runs
+
+cv_df = 
+  cv_df %>% 
+  mutate(
+    model1  = map(.x = train, ~lm(bwt~mheight + delwt, data = .x)),
+    model2  = map(.x = train, ~lm(bwt~blength+gaweeks, data = .x)),
+    model3  = map(.x = train, ~lm(bwt~bhead*blength + bhead*babysex + blength*babysex, data = .x)))  %>%
+  mutate(
+    rmse_model1= map2_dbl(.x=model1, .y=test, ~rmse(model = .x, data = .y)),
+    rmse_model2= map2_dbl(.x=model2, .y=test, ~rmse(model = .x, data = .y)),
+    rmse_model3 = map2_dbl(.x=model3, .y=test, ~rmse(model = .x, data = .y)) 
+  ) 
+```
+
