@@ -128,3 +128,4 @@ birthweight |>
     title = "Residuals vs Fitted Values ")
 ```
 
+ Based on the fitted values vs predicted values plot, since the points are clustered symmetriclly around 0, we can conclude that the variability of the residuals varies across different levels of the fitted values. This indicates heteroscedasticity. This means the relationship between predictors and the response variable is not linear.
