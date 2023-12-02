@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(viridis)
 library(broom)
-library(DAAG)
+library(modelr)
 library(purrr)
 
 knitr::opts_chunk$set(
@@ -116,3 +116,15 @@ summary(model)
 ```
 
 The simple linear model examines the effect that mother's height and weight have on birth weight. I think the mother's weight and height are the most accurate predictors for the baby's weight. I think these variables are stronger predictors than income or race/ethnicity, and than the biological determinants of health have a greater impact on birth weight than the environmental and social determinants.
+
+### Model residuals vs fitted values
+```{r}
+birthweight |> 
+  add_predictions(model) |>
+  add_residuals(model) |>
+  ggplot(aes(x = pred, y = resid)) +  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Residuals vs Fitted Values ")
+```
+
