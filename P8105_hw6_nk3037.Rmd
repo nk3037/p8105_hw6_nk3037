@@ -131,8 +131,8 @@ birthweight = janitor::clean_names(birthweight, case = "snake")%>%
   na.omit(birthweight)
 
 # Regression model
-model = lm (bwt ~ mheight + delwt, data = birthweight)
-summary(model)
+model1 = lm (bwt ~ mheight + delwt, data = birthweight)
+summary(model1)
 ```
 
 The simple linear model examines the effect that mother's height and weight have on birth weight. I think the mother's weight and height are the most accurate predictors for the baby's weight. I think these variables are stronger predictors than income or race/ethnicity, and than the biological determinants of health have a greater impact on birth weight than the environmental and social determinants.
