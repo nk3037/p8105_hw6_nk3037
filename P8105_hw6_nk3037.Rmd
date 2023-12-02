@@ -48,50 +48,70 @@ weather_df =
   select(name, id, everything())
 ```
 
-### Bootstrapping
+In this model, 'tmax' is the response and 'tmin' and 'prcp' are the predictors. 
 ```{r}
 # Initial linear model
 lin_model = lm(tmax ~ tmin + prcp, data = weather_df)
-
-# Bootstrap sample
-num_samples = 5000
-
-# Creating a matrix for the estimates
-bootstrap_estimates = matrix(NA, nrow = num_samples, ncol = 2)
-
-# Bootstrapping
-for (i in 1:num_samples) {
-  bootstrap_sample = weather_df[sample(nrow(weather_df), replace = TRUE), ]
-  bootstrap_model = lm(tmax ~ tmin + prcp, data = bootstrap_sample)
-  bootstrap_estimates[i, 1] = broom::glance(bootstrap_model)$r.squared
-  bootstrap_estimates[i, 2] = sum(broom::tidy(bootstrap_model)$estimate[-1])
-}
-
-# Plotting the distribution
-hist(bootstrap_estimates[, 1], main = "Distribution of r^2", xlab = "r^2")
 ```
+
+Plotting r-square distribution using 5000 bootstrap samples
+```{r}
+# Bootstrapping
+weather_rsq = weather_df %>% 
+    modelr::bootstrap(n = 5000, id="strap_count") %>%  
+    mutate(
+     models = map(.x=strap, ~lm(tmax ~ tmin + prcp, data = .x)),
+     results = map(.x=models, broom::glance)) %>% 
+    select(strap_count, results) %>% 
+    unnest(results) 
+
+# Plotting
+weather_rsq %>% 
+  ggplot(aes(x = r.squared)) + geom_density()
+
+# Calculating CIs
+weather_rsq %>% 
+  summarize(
+    ci_lower = quantile(r.squared, 0.025), 
+    ci_upper = quantile(r.squared, 0.975))
+```
+
 The distribution of r squared is skewed left. The most common r^2 value is between 0.92-0.925. The mean r^2 value is 0.92. Since the distribution is not normal, it may be safe to assume that a linear model is not the best approach for this data and instead a generalized linear model or non-parametric methods may be better.
 
+Plotting log(b1*b2) distribution using 5000 bootstrap samples
 ```{r}
-hist(bootstrap_estimates[, 2], main = "Distribution of log(hat(β1) * hat(β2))", xlab = "log(β1*β2)")
+# Bootstrapping
+weather_logb = weather_df %>% 
+    modelr::bootstrap(n = 5000, id="strap_number") %>% 
+     mutate(
+      models = map(.x=strap, ~lm(tmax ~ tmin + prcp, data = .x)),
+      results = map(models, broom::tidy)) %>% 
+    select(strap_number, results) %>% 
+    unnest(results) %>% 
+    pivot_wider(
+      names_from = term, 
+      values_from = estimate) %>% 
+    group_by(strap_number) %>% 
+    summarize(
+     tmin = first(na.omit(tmin)),
+     prcp = first(na.omit(prcp)),
+     log_product = log(tmin * prcp)
+    )
+
+# Plotting
+weather_logb %>% 
+  filter(log_product!="NaN") %>% 
+  ggplot(aes(x=log_product))+geom_density()
+
+# Calculating CIs
+log_product_conf_int =weather_logb |> 
+  summarize(
+    lower_ci = quantile(log_product, 0.025, na.rm=TRUE),
+    upper_ci = quantile(log_product, 0.975,na.rm=TRUE)
+  )
 ```
 
-The distribution of log (b1*b2) is normally distributed. The mean and mode is between 1.01-1.02. Based on the Central Limit Theorem, it is expected that the distribution across 5000 samples is approximately normal. Since the product of the log of b1 and b2 is normal, we can conclude that b1 and b2 are also log-normally distributed.
-
-### Confidence interval
-```{r}
-quantiles <- quantile(bootstrap_estimates, c(0.025, 0.975), na.rm = TRUE)
-
-lower_bound_r_squared = quantiles["2.5%"]
-upper_bound_r_squared = quantiles["97.5%"]
-
-lower_bound_log_beta = quantiles["2.5%"]
-upper_bound_log_beta = quantiles["97.5%"]
-
-cat("95% CI for r^2:", lower_bound_r_squared, "-", upper_bound_r_squared, "\n")
-cat("95% CI for log(β̂1∗β̂2):", lower_bound_log_beta, "-", upper_bound_log_beta, "\n")
-```
-
+The distribution of the log product is left-skewed with the curve peaking at around -5.5 on a graph of range -13 to -4. The 95% confidence interval is (-8.947,-4.571). 
 
 ## Question 3
 ```{r}
@@ -128,7 +148,7 @@ birthweight %>%
     title = "Residuals vs Fitted Values ")
 ```
 
- Based on the fitted values vs predicted values plot, since the points are clustered symmetriclly around 0, we can conclude that the variability of the residuals varies across different levels of the fitted values. This indicates heteroscedasticity. This means the relationship between predictors and the response variable is not linear.
+Based on the fitted values vs predicted values plot, since the points are clustered symmetrically around 0, we can conclude that the variability of the residuals varies across different levels of the fitted values. This indicates heteroscedasticity. This means the relationship between predictors and the response variable is not linear.
  
 ### Comparing to the other two models
 ```{r}
